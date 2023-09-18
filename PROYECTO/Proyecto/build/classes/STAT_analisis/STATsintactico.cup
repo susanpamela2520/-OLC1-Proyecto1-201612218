@@ -108,6 +108,7 @@ non terminal instrucciones,instruccion,variables,tipodevariable,expreciones;
 non terminal sentencia_if,if_s0,sentencias_else,else_s0,else_s1;
 non terminal relaciones,relacion,op;
 non terminal metodos,metodoglo,metodoglo2,datosdeglobales,simbolos;
+non termnal console;
 non terminal pies,pies2,eltitulo,ejesx,vlo,ejesx2,vlo2;
 
 
@@ -226,6 +227,10 @@ else_s0::=RECERVADA_ELSE RECERVADA_IF OPEN_PAR relaciones:a CLOSE_PAR LLAVE_ABRE
 else_s1::=RECERVADA_ELSE LLAVE_ABRE instrucciones:b LLAVE_CIERRA     {:RESULT="else:\n"+b+"\n";:}
 
 ;            
+
+
+console ::= RECERVADA_CONSOL OPEN_PAR instrucciones:a CLOSE_PAR  { :RESULT="console.write" +a+"\n";:}
+
 
 //---------------------------------------------COMIENZA LO DE GRAFICAS 
 
