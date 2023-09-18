@@ -13,7 +13,7 @@ import java_cup.runtime.*;
 
 
 
-//-------> Directivas (No tocar)
+//-------> Directivas (igual al del Navarro xD)
 
 %public 
 %class Lexer
