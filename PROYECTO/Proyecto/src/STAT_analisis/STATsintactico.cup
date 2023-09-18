@@ -1,0 +1,290 @@
+
+package STAT_analisis;
+
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import Graficas.GPies;
+//------> Codigo para el parser
+//------> Declaracion de variables, funciones y funciones de error
+
+parser code 
+{:
+
+
+     public String resultado = ""; 
+
+    public void syntax_error(Symbol s)
+    {
+        System.err.println("Error Sintactico: "+ s.value + " - Fila: " + s.right + " - Columna: " + s.left + ". Recuperado" );
+        funcionesJava.SPERR.ERRSPtokens.add(new funcionesJava.SPERR( "error en "+s.value,"Error Sintactico", s.right , s.left ));
+    }
+
+    public void unrecovered_syntax_error(Symbol s)
+    {
+       System.err.println("Error Sintactico: "+ s.value + " - Fila: " + s.right + " - Columna: " + s.left + ". Sin recuperacion." );
+         }
+
+//------------------------------
+
+   /*public String indentation(int a){
+        String tab="";
+        for(int i = 0; i < a;i++ ){
+            tab = tab + "\t";
+        }
+        
+        return tab;
+    }
+ public static LinkedList<TError> TablaES = new LinkedList<TError>();
+    public static LinkedList<String> python = new LinkedList<String>();
+
+    // Listas para pie graph
+    public static LinkedList<String> ejex_pie = new LinkedList<String>();
+    public static LinkedList<String> valores_pie = new LinkedList<String>();
+    public static String titulo_pie_graph="";
+
+*/
+
+
+
+
+
+public GPies graficade_pies = new GPies();
+private ArrayList<Double> Values = new ArrayList<Double>();
+    private ArrayList<String> ValuesX = new ArrayList<String>();
+    String titulo;
+  
+    
+
+
+public  Object buscar(String archivo, String variabl) {
+    System.out.println("mandando a buscar el dato");
+    
+    Object valor=funcionesJava.SPTK.buscarDatoEnMapa(archivo,variabl);
+    return valor;
+}
+
+public  Object buscarGlobal(String variabl) {
+    System.out.println("mandando a buscar el dato global");
+    
+    Object valor=funcionesJava.SPTK.ValorDeVariableGlobal(variabl);
+    return valor;
+}
+
+
+
+
+:}
+
+
+//------> Codigo para las acciones gramaticales (no tocar)
+action code
+{:  :}
+
+
+//------> Declaración de terminales
+// EXPRECIONES
+terminal String NUMERO,DIGITO,CARACTER,ID,STRCADENA;
+//SIMBOLOS
+terminal String OPEN_PAR,CLOSE_PAR,LLAVE_ABRE,LLAVE_CIERRA,PUNTO_COMA,DOSPUNTOS,COMA,CORCHETE_ABRE,CORCHETE_CIERRA,SIMBOLO_DOLAR;
+//OPERADORES 
+terminal String IGUAL,MAS,MENOS,MULTIPLICACION,DIVICION;
+//LOGICOS 
+terminal String MAYOR,MENOR,MAYOR_IGUAL,MENOR_IGUAL,RELACIONAL_IGUAL,DIFERENTE,AND,OR,NOT,RELACIONAL_MAS;
+
+//PALABRAS RESERVADAS 
+terminal String RECERVADA_STRING,RECERVADA_MAIN,RECERVADA_IF,RECERVADA_ELSE,RECERVADA_SWITCH,RECERVADA_BREAK,
+RECERVADA_FOR,RECERVADA_WHILE,RECERVADA_CONSOL,RECERVADA_DEFAULT,RECERVADA_CASE,RECERVADA_DO,RECERVADA_TRUE,
+RECERVADA_FALSE,RECERVADA_VOID,RECERVADA_INT,RECERVADA_DOUBLE,RECERVADA_CHAR,RECERVADA_BOOL,RECERVADA_VAR;
+
+//PALABRAS RESERVADAS PARA GRAFICAS
+terminal String RECERVADA_NEWVALOR,RECERVADA_PIES,RECERVADA_TITULOY,RECERVADA_TITULOX,RECERVADA_EJEX,RECERVADA_TITULO,RECERVADA_VAL,RECERVADA_BAR,RECERVADA_GLOBAL;
+
+
+
+
+//------> Declaración de no terminales
+non terminal inicio;
+non terminal instrucciones,instruccion,variables,tipodevariable,expreciones;
+non terminal sentencia_if,if_s0,sentencias_else,else_s0,else_s1;
+non terminal relaciones,relacion,op;
+non terminal metodos,metodoglo,metodoglo2,datosdeglobales,simbolos;
+non terminal pies,pies2,eltitulo,ejesx,vlo,ejesx2,vlo2;
+
+
+//---> precedencia de menor a mayor
+precedence left RELACIONAL_MAS;
+precedence left MAS,MENOS;
+precedence left MULTIPLICACION, DIVICION;
+precedence left AND, OR, NOT;
+
+precedence left MAYOR , MENOR,MAYOR_IGUAL,  RELACIONAL_IGUAL, DIFERENTE;
+
+
+
+//------> Definir Simbolo Inicial
+start with inicio; 
+
+inicio ::=  RECERVADA_VOID RECERVADA_MAIN OPEN_PAR CLOSE_PAR LLAVE_ABRE instrucciones:a LLAVE_CIERRA
+  
+{:funcionesJava.SPTK.TraduccionPy.add(a.toString() );:}
+
+;
+
+instrucciones::=instruccion:a instrucciones:b            {:RESULT=a+""+b;:}
+            |instruccion:a                                {:RESULT=a;:}  
+            ;
+
+instruccion::=variables:a                                {:RESULT=a+"\n";:}
+            |sentencia_if:a                               {:RESULT=a;:}
+            |metodos                                        {:RESULT="";:}
+            |RECERVADA_BREAK PUNTO_COMA                     {:RESULT="break;";:}
+            ;
+
+expreciones::= expreciones:a MAS expreciones:b                      {:RESULT=a+"+"+b;:}
+            |expreciones:a MENOS expreciones:b                      {:RESULT=a+"-"+b;:}
+            |expreciones:a MULTIPLICACION expreciones:b             {:RESULT=a+"*"+b;:}
+            |expreciones:a DIVICION expreciones:b                   {:RESULT=a+"/"+b;:}
+            |NUMERO:a                                               {:RESULT=a;:}
+            |DIGITO:a                                               {:RESULT=a;:}
+            |ID:a                                                   {:RESULT=a;:}    
+            |STRCADENA:a                                            {:RESULT=a;:}
+            |RECERVADA_TRUE:a                                       {:RESULT="true";:}
+            |RECERVADA_FALSE:a                                      {:RESULT="False";:}
+                      
+            ;
+
+tipodevariable::=RECERVADA_STRING:a                          {:RESULT=a;:}       
+            |RECERVADA_INT:a                                 {:RESULT=a;:}          
+            |RECERVADA_CHAR:a                                {:RESULT=a;:}                      
+            |RECERVADA_BOOL:a                                {:RESULT=a;:}                   
+            |RECERVADA_VAR:a                                 {:RESULT=a;:}                    
+            |RECERVADA_DOUBLE:a                              {:RESULT=a;:}                
+            ;
+
+
+variables::=tipodevariable ID:a IGUAL relaciones:b PUNTO_COMA        {:RESULT=" "+a+" ="+b;:}
+            |tipodevariable:a ID:b PUNTO_COMA                           {:RESULT=a+" "+b;:}  
+            |ID:a IGUAL relaciones:b PUNTO_COMA                        {:RESULT=a+" ="+b;:} 
+            |ID:a  RELACIONAL_MAS PUNTO_COMA                            {:RESULT=a+"++;";:} 
+            ;
+
+relaciones::=relaciones:a op:b relaciones:c                     {:RESULT=a+""+b+""+c;:}
+            |relacion:a                                         {:RESULT=a;:}       
+            ;
+
+
+relacion::=relacion:a MAYOR relacion:b                      {:RESULT=a+">"+b;:}
+            |relacion:a MENOR relacion:b                    {:RESULT=a+"<"+b;:}   
+            |relacion:a MAYOR_IGUAL relacion:b              {:RESULT=a+">="+b;:}
+
+            |relacion:a RELACIONAL_IGUAL relacion:b         {:RESULT=a+"=="+b;:}   
+            |relacion:a DIFERENTE relacion:b                  {:RESULT=a+"!"+b;:}
+            |relacion:a MAS relacion:b                      {:RESULT=a+"+"+b;:}
+            |relacion:a MENOS relacion:b                      {:RESULT=a+"-"+b;:}
+            |relacion:a MULTIPLICACION relacion:b             {:RESULT=a+"*"+b;:}
+            |relacion:a DIVICION relacion:b                   {:RESULT=a+"/"+b;:}
+            |NOT relacion:a                             {:RESULT="not"+a;:}          
+            |NUMERO:a                                       {:RESULT=a;:}
+            |DIGITO:a                                       {:RESULT=a;:}        
+            |ID:a                                           {:RESULT=a;:}
+            |STRCADENA:a                                    {:RESULT=a;:}    
+            |RECERVADA_TRUE                                 {:RESULT="true";:}
+            |RECERVADA_FALSE                                {:RESULT="false";:}
+            |CARACTER:a                                             {:RESULT=a;:} 
+            |MENOS NUMERO:a                                         {:RESULT="-"+a;:}  
+            ;
+
+
+
+op::=NOT                    {:RESULT="not";:}                 
+    |OR                     {:RESULT="or";:}
+    |RELACIONAL_MAS         {:RESULT="++";:}
+    |AND                    {:RESULT="and";:}
+    ;
+
+
+
+sentencia_if::=if_s0:a                                      {:RESULT=a;:}                                    
+            | if_s0:a sentencias_else:b                     {:RESULT=a+""+b;:}     
+            |if_s0:a sentencias_else:b else_s1:c             {:RESULT=a+""+b+""+c;:}
+            ;
+
+
+if_s0::=RECERVADA_IF OPEN_PAR relaciones:a CLOSE_PAR LLAVE_ABRE instrucciones:b LLAVE_CIERRA  {:RESULT="if "+a+":\n"+b+"\n";:}
+;             
+
+sentencias_else::= sentencias_else:a  else_s0:b                  {:RESULT=a+""+b;:} 
+                |else_s0:a                                        {:RESULT=a;:}  
+                ;
+
+
+else_s0::=RECERVADA_ELSE RECERVADA_IF OPEN_PAR relaciones:a CLOSE_PAR LLAVE_ABRE instrucciones:b LLAVE_CIERRA            {:RESULT="else if "+a+":\n"+b+"\n";:}
+;
+
+
+else_s1::=RECERVADA_ELSE LLAVE_ABRE instrucciones:b LLAVE_CIERRA     {:RESULT="else:\n"+b+"\n";:}
+
+;            
+
+//---------------------------------------------COMIENZA LO DE GRAFICAS 
+
+
+metodos::= RECERVADA_VOID  RECERVADA_GLOBAL OPEN_PAR  CLOSE_PAR LLAVE_ABRE metodoglo  LLAVE_CIERRA 
+        |RECERVADA_VOID RECERVADA_PIES OPEN_PAR  CLOSE_PAR LLAVE_ABRE pies2 LLAVE_CIERRA 
+      {:  graficade_pies.Graficar(titulo, ValuesX, Values); titulo="";ValuesX.clear();Values.clear();:}
+;
+
+metodoglo::=metodoglo metodoglo2
+            |metodoglo2
+            ;
+
+metodoglo2::=RECERVADA_STRING ID:a IGUAL  datosdeglobales:b PUNTO_COMA                {: Graficas.GPies.VGlobales.put(a.toLowerCase(),b);:}
+            |RECERVADA_DOUBLE ID:a IGUAL  datosdeglobales:b PUNTO_COMA                {: Graficas.GPies.VGlobales.put(a.toLowerCase(),b);:}
+            ;
+
+datosdeglobales::=DIGITO:a                       {:RESULT=a;:}     
+                |STRCADENA:a                     {:RESULT=a.replace("\"", "");:}       
+                |simbolos:a                      {:RESULT=a;:}     
+;
+
+simbolos::=  SIMBOLO_DOLAR LLAVE_ABRE  RECERVADA_NEWVALOR COMA STRCADENA:a COMA STRCADENA:b  LLAVE_CIERRA  {:Object w=buscar(a.replace("\"", ""),b.replace("\"", ""));RESULT=w;:} 
+;  
+
+
+pies2::=pies2 pies
+        |pies
+        ;
+
+pies::= RECERVADA_STRING RECERVADA_TITULO IGUAL eltitulo:a PUNTO_COMA         {:titulo=(String)a;:}
+        |RECERVADA_STRING CORCHETE_ABRE CORCHETE_CIERRA RECERVADA_EJEX IGUAL LLAVE_ABRE ejesx LLAVE_CIERRA PUNTO_COMA 
+        |RECERVADA_DOUBLE CORCHETE_ABRE CORCHETE_CIERRA RECERVADA_VAL IGUAL LLAVE_ABRE vlo  LLAVE_CIERRA  PUNTO_COMA 
+        ;
+
+vlo::=vlo vlo2
+      |vlo2
+      ;
+
+vlo2::=ID:a                            {:Object w=buscarGlobal(a.toLowerCase()); double j = Double.parseDouble(w.toString());Values.add((Double)j); :}
+         |DIGITO:a                     {: double w = 0.0; w = Double.parseDouble(a);Values.add((Double)w);:}      
+         |simbolos:a                    {: double w = 0.0; w = Double.parseDouble(a.toString());Values.add((Double)w);:}  
+         |COMA
+        ;
+
+
+ejesx::=ejesx ejesx2
+        |ejesx2
+        ;
+
+eltitulo::=ID:a                           {:Object w=buscarGlobal(a.toLowerCase());RESULT=w;:}           
+         |simbolos:a                      {:RESULT=a;:}
+          |STRCADENA:a                     {:RESULT=a.replace("\"", "");:}           
+        ;
+
+
+ejesx2::=ID:a                           {:Object w=buscarGlobal(a.toLowerCase());ValuesX.add((String)w); :}           
+         |STRCADENA:a                     {:ValuesX.add((String)a.replace("\"", ""));:}       
+         |simbolos:a                      {:ValuesX.add((String)a);:}
+         |COMA
+        ;
+
+

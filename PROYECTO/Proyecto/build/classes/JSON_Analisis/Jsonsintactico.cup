@@ -1,0 +1,64 @@
+
+// ------------  Paquetes e importaciones ------------
+package JSON_Analisis;
+import java_cup.runtime.*;
+
+
+//------> Codigo para el parser
+//------> Declaracion de variables, funciones y funciones de error
+
+parser code 
+{:
+    public String resultado = ""; 
+
+    public void syntax_error(Symbol s)
+    {
+        System.err.println("Error Sintactico: "+ s.value + " - Fila: " + s.right + " - Columna: " + s.left + ". Recuperado" );
+        funcionesJava.erroresJS.erroresJSon.add(new funcionesJava.erroresJS(s.value.toString(),"Error Sintactico"  , s.right , s.left ));
+    }
+
+     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception
+    {
+           funcionesJava.erroresJS.erroresJSon.add(new funcionesJava.erroresJS(s.value.toString(),"Error Sintactico"  , s.right , s.left ));
+    }
+
+:}
+
+
+//------> Codigo para las acciones gramaticales (no tocar)
+action code
+{:  :}
+
+
+//------> Declaración de terminales
+terminal String DECIMAL,STRING,CORCHETE_A,CORCHETE_C,DOS_P,COMA,PUNTOYCOMA;
+
+
+//------> Declaración de no terminales
+non terminal inicio,instruccion,instrucciondos ;
+
+
+//------> Definir Simbolo Inicial
+start with inicio; 
+
+
+// ------------>  Producciones  <------------
+
+
+
+instruccion::= STRING:a DOS_P instrucciondos:b               {:String w = a.replace("\"", "");funcionesJava.JSTK.HashJson1.put(w.toString(), b);:}
+       |STRING:a DOS_P instrucciondos:b COMA instruccion     {:String w = a.replace("\"", "");funcionesJava.JSTK.HashJson1.put(w.toString(), b);:}
+      
+;   
+
+inicio ::= CORCHETE_A instruccion CORCHETE_C
+            |error PUNTOYCOMA
+
+ ;
+
+instrucciondos ::= STRING:a  {:String w = a.replace("\"", "");RESULT = w; :}
+        |DECIMAL:a         {: RESULT=a;:}
+        
+
+;
+
