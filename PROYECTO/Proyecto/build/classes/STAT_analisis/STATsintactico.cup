@@ -207,6 +207,7 @@ op::=NOT                    {:RESULT="not";:}
 sentencia_if::=if_s0:a                                      {:RESULT=a;:}                                    
             | if_s0:a sentencias_else:b                     {:RESULT=a+""+b;:}     
             |if_s0:a sentencias_else:b else_s1:c             {:RESULT=a+""+b+""+c;:}
+            |if_s0:a else_s1:c             {:RESULT=a+""+c;:}   
             ;
 
 
